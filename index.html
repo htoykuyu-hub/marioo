@@ -1,0 +1,2930 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Super Mario Çarpım Tablosu Macera - 3. Sınıf Platform Oyunu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    body {
+      background: #090d16;
+      font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      overflow-x: hidden;
+    }
+
+    /* Üst Başlık Çubuğu */
+    header {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 2px solid #f59e0b;
+      border-radius: 16px;
+      padding: 8px 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      margin-bottom: 6px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #dc2626;
+      border: 2px solid #fde047;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+      transition: transform 0.15s;
+    }
+    .avatar-btn:active {
+      transform: scale(0.92);
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-android {
+      background: #16a34a;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: #cbd5e1;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #f1f5f9;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+    .action-btn:hover {
+      background: #334155;
+      border-color: #94a3b8;
+    }
+    .action-btn:active {
+      transform: scale(0.95);
+    }
+    .action-btn.shop-btn {
+      background: linear-gradient(135deg, #ec4899, #be185d);
+      border-color: #f472b6;
+      color: white;
+      box-shadow: 0 3px 0 #831843;
+    }
+    .action-btn.coin-pill {
+      background: #0f172a;
+      border: 2px solid #facc15;
+      color: #facc15;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Oyun Çerçevesi */
+    #game-container {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      background: #000;
+      border: 4px solid #f59e0b;
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: auto;
+    }
+
+    /* Ekran Üzeri HUD */
+    .in-game-hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hud-card {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      border: 2px solid #38bdf8;
+      border-radius: 14px;
+      padding: 6px 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+    }
+    .hud-title {
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .hud-value {
+      font-size: 16px;
+      font-weight: 900;
+      color: #f8fafc;
+    }
+    .hearts-row {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .heart-icon {
+      font-size: 18px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+      animation: heartbeat 1.6s infinite ease-in-out;
+    }
+    .heart-lost {
+      filter: grayscale(1) opacity(0.35);
+      animation: none;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
+    .question-card {
+      background: linear-gradient(135deg, #1e1b4b, #0f172a);
+      border: 3px solid #facc15;
+      border-radius: 18px;
+      padding: 6px 20px;
+      box-shadow: 0 6px 20px rgba(250, 204, 21, 0.35);
+      text-align: center;
+    }
+    .question-prompt {
+      font-size: 11px;
+      font-weight: 800;
+      color: #facc15;
+      letter-spacing: 0.5px;
+    }
+    .question-math {
+      font-size: 24px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    /* İpucu Kutusu */
+    #hint-box {
+      position: absolute;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      border: 2px solid #ef4444;
+      border-radius: 12px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fca5a5;
+      display: none;
+      z-index: 15;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+      animation: pulse 1s infinite alternate;
+    }
+
+    /* Mobil Kontroller */
+    .mobile-controls {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding: 2px 4px;
+      gap: 12px;
+    }
+    .d-pad {
+      display: flex;
+      gap: 10px;
+    }
+    .ctrl-btn {
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+      border: 3px solid #93c5fd;
+      border-radius: 18px;
+      color: white;
+      font-size: 28px;
+      font-weight: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 0 #1e3a8a, 0 10px 18px rgba(0,0,0,0.5);
+      cursor: pointer;
+      user-select: none;
+      touch-action: none;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+    .ctrl-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #1e3a8a;
+    }
+    .ctrl-btn .sub {
+      font-size: 9px;
+      font-weight: 800;
+      opacity: 0.8;
+      margin-top: -4px;
+    }
+    .jump-btn {
+      flex: 1;
+      max-width: 280px;
+      height: 68px;
+      background: linear-gradient(180deg, #f59e0b, #d97706);
+      border: 3px solid #fde047;
+      border-radius: 20px;
+      color: #0f172a;
+      font-size: 19px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 0 #92400e, 0 10px 18px rgba(0,0,0,0.5);
+      cursor: pointer;
+      user-select: none;
+      touch-action: none;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+    .jump-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #92400e;
+    }
+
+    /* Modal Pencereleri */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(6px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 16px;
+      text-align: center;
+    }
+    .modal-card {
+      background: #0f172a;
+      border: 4px solid #f59e0b;
+      border-radius: 24px;
+      padding: 24px 28px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .modal-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: #fbbf24;
+      margin-bottom: 4px;
+    }
+    .modal-sub {
+      font-size: 15px;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 12px;
+    }
+    .modal-body {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .modal-stats {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 16px;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 800;
+    }
+    .stat-val {
+      font-size: 18px;
+      font-weight: 900;
+      color: #facc15;
+    }
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(180deg, #10b981, #059669);
+      border: none;
+      color: white;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 900;
+      padding: 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #047857;
+      transition: transform 0.1s;
+    }
+    .btn-primary:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #047857;
+    }
+    .btn-pink {
+      background: linear-gradient(180deg, #ec4899, #db2777);
+      box-shadow: 0 4px 0 #9d174d;
+      margin-bottom: 8px;
+    }
+
+    /* Kostüm Mağazası */
+    #shop-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 12px;
+    }
+    .shop-box {
+      background: #0f172a;
+      border: 3px solid #ec4899;
+      border-radius: 24px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+    }
+    .shop-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+    .shop-header h3 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #f472b6;
+    }
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .costume-card {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .costume-card.unlocked {
+      border-color: #10b981;
+    }
+    .costume-card.equipped {
+      border-color: #facc15;
+      background: #2e1065;
+      box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+    }
+    .costume-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .costume-tag {
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #0f172a;
+      color: #94a3b8;
+    }
+    .costume-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .costume-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+    .costume-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: white;
+    }
+    .costume-desc {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .costume-btn {
+      width: 100%;
+      padding: 8px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .costume-btn:active {
+      transform: scale(0.96);
+    }
+    .costume-btn.btn-equipped {
+      background: #facc15;
+      color: #0f172a;
+      cursor: default;
+    }
+    .costume-btn.btn-wear {
+      background: #10b981;
+      color: white;
+    }
+    .costume-btn.btn-buy {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #0f172a;
+    }
+    .costume-btn:disabled {
+      background: #334155;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.03); }
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Menü Çubuğu -->
+  <header>
+    <div class="brand">
+      <div id="btn-open-wardrobe" class="avatar-btn" title="Kostüm Gardırobu">🐱</div>
+      <div>
+        <div class="brand-title">
+          <span>SUPER MARIO ÇARPIM</span>
+          <span class="badge-android">📱 ANDROID</span>
+        </div>
+        <div class="brand-sub">3. Sınıf Matematik Platformu</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <!-- Altın Kasası -->
+      <button id="btn-gold-counter" class="action-btn coin-pill" title="Toplanan Altınlar">
+        🪙 <span id="header-coins">0</span>
+      </button>
+
+      <!-- Kostüm Mağazası Butonu -->
+      <button id="btn-open-shop" class="action-btn shop-btn">
+        🛍️ Kostümler
+      </button>
+
+      <!-- Ses / Müzik Toggle -->
+      <button id="btn-sound-toggle" class="action-btn" title="Ses Efektleri">
+        🔊 Ses
+      </button>
+
+      <!-- Tam Ekran -->
+      <button id="btn-fullscreen-toggle" class="action-btn" title="Tam Ekran">
+        ⛶
+      </button>
+    </div>
+  </header>
+
+  <!-- Canvas ve Overlay Ekranı -->
+  <div id="game-container">
+    <div class="in-game-hud">
+      <!-- Sol: Bölüm & İlerleme -->
+      <div class="hud-card">
+        <span class="hud-title" id="hud-level-name">1. Bölüm: Çimenli Tepe</span>
+        <span class="hud-value" id="hud-question-prog">Soru 1/10</span>
+      </div>
+
+      <!-- Orta: Çarpma Sorusu -->
+      <div class="question-card">
+        <div class="question-prompt">DOĞRU BLOKU PATLAT! 🌟</div>
+        <div class="question-math" id="hud-question">2 x 3 = ?</div>
+      </div>
+
+      <!-- Sağ: 3 Can Hakkı & Skor -->
+      <div class="hud-card" style="align-items: flex-end;">
+        <div class="hearts-row" id="hearts-container">
+          <span class="heart-icon" id="heart-1">❤️</span>
+          <span class="heart-icon" id="heart-2">❤️</span>
+          <span class="heart-icon" id="heart-3">❤️</span>
+        </div>
+        <span class="hud-value" id="hud-score">0</span>
+      </div>
+    </div>
+
+    <!-- Yanlış Cevap İpucu Balonu -->
+    <div id="hint-box"></div>
+
+    <!-- HTML5 Canvas -->
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+    <!-- BÖLÜM TAMAMLANDI MODALI -->
+    <div id="level-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div style="font-size: 38px; margin-bottom: 4px;">⭐ ⭐ ⭐</div>
+        <h2 class="modal-title">BÖLÜM TAMAMLANDI!</h2>
+        <div class="modal-sub" id="level-modal-title">1. Bölüm Geçildi!</div>
+        <div class="modal-body">
+          Harika gidiyorsun! 10 soruyu başarıyla tamamladın ve <b>+4 Bonus Altın 🪙</b> kazandın!
+        </div>
+        <div class="modal-stats">
+          <div>
+            <div class="stat-label">TOPLAM SKOR</div>
+            <div class="stat-val" id="level-modal-score">0</div>
+          </div>
+          <div>
+            <div class="stat-label">ALTIN KASASI</div>
+            <div class="stat-val" id="level-modal-coins">🪙 0</div>
+          </div>
+        </div>
+        <button id="btn-modal-shop" class="btn-primary btn-pink">
+          🛍️ KOSTÜM MAĞAZASINA GİT
+        </button>
+        <button id="btn-next-level" class="btn-primary">
+          SONRAKİ BÖLÜME GEÇ ➔
+        </button>
+      </div>
+    </div>
+
+    <!-- 3 CAN BİTTİ (GAME OVER) MODALI -->
+    <div id="game-over-modal" class="modal-overlay">
+      <div class="modal-card" style="border-color: #ef4444;">
+        <div style="font-size: 40px; margin-bottom: 4px;">🐢 💔 ☠️</div>
+        <h2 class="modal-title" style="color: #ef4444;">3 CANIN TÜKENDİ!</h2>
+        <div class="modal-sub" style="color: #f87171;">Kaplumbağalar Canını Aldı!</div>
+        <div class="modal-body">
+          Yanlış cevaplar sonucu 3 canın bitti ve puanın sıfırlandı. 
+          Endişelenme, altınların kasanda güvende! 3 yeni can ve yeni sorularla hemen tekrar başla!
+        </div>
+        <div class="modal-stats">
+          <div>
+            <div class="stat-label">PUAN</div>
+            <div class="stat-val" id="game-over-score" style="color:#ef4444;">0 (Sıfırlandı)</div>
+          </div>
+          <div>
+            <div class="stat-label">KORUNAN ALTIN</div>
+            <div class="stat-val" id="game-over-coins">🪙 0</div>
+          </div>
+        </div>
+        <button id="btn-retry-level" class="btn-primary">
+          3 CAN & YENİ SORULARLA BAŞLA 🔄
+        </button>
+      </div>
+    </div>
+
+    <!-- PRENSES KURTARILDI (ZAFER FİNALİ) MODALI -->
+    <div id="victory-modal" class="modal-overlay">
+      <div class="modal-card" style="border-color: #f472b6;">
+        <div style="font-size: 44px; margin-bottom: 4px;">👑 🏰 💖</div>
+        <h2 class="modal-title" style="color: #f472b6;">PRENSES KURTARILDI!</h2>
+        <div class="modal-sub" style="color: #fde047;">Tebrikler Şampiyon Matematikçi!</div>
+        <div class="modal-body">
+          4. Bölümün son sorusunu doğru bilerek Şatoya ulaştın! Mario Kedi ve Prenses sarıldı, krallık kurtuldu!
+        </div>
+        <div class="modal-stats">
+          <div>
+            <div class="stat-label">FİNAL SKORU</div>
+            <div class="stat-val" id="final-score">0</div>
+          </div>
+          <div>
+            <div class="stat-label">TOPLANAN ALTIN</div>
+            <div class="stat-val" id="final-coins">🪙 0</div>
+          </div>
+        </div>
+        <button id="btn-play-again" class="btn-primary">
+          YENİDEN OYNA 🌟
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobil / Android Dokunmatik Kontroller -->
+  <div class="mobile-controls">
+    <div class="d-pad">
+      <button id="btn-left" class="ctrl-btn" aria-label="Sol">
+        ◀
+        <span class="sub">SOL</span>
+      </button>
+      <button id="btn-right" class="ctrl-btn" aria-label="Sağ">
+        ▶
+        <span class="sub">SAĞ</span>
+      </button>
+    </div>
+
+    <button id="btn-jump" class="jump-btn" aria-label="Zıpla">
+      ⬆ ZIPLA & PATLAT!
+    </button>
+  </div>
+
+  <!-- KOSTÜM MAĞAZASI MODALI -->
+  <div id="shop-modal">
+    <div class="shop-box">
+      <div class="shop-header">
+        <h3>🛍️ Mario Kedi Kostüm Gardırobu</h3>
+        <button id="btn-close-shop" class="action-btn">✕ Kapat</button>
+      </div>
+
+      <div style="background:#090d16; padding:10px 14px; border-radius:12px; border:1px solid #334155; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <span style="font-size:11px; color:#94a3b8; font-weight:700;">MEVCUT ALTININ:</span>
+          <span id="shop-coins-display" style="font-size:16px; font-weight:900; color:#facc15; margin-left:6px;">🪙 0</span>
+        </div>
+        <div>
+          <span style="font-size:11px; color:#94a3b8; font-weight:700;">TOPLAM SKOR:</span>
+          <span id="shop-score-display" style="font-size:16px; font-weight:900; color:#38bdf8; margin-left:6px;">⭐ 0</span>
+        </div>
+      </div>
+
+      <div class="shop-grid" id="shop-costumes-list"></div>
+
+      <button id="btn-close-shop-bottom" class="action-btn" style="width:100%; justify-content:center; padding:10px;">
+        Gardırobu Kapat & Oyuna Dön
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       SUPER MARIO ÇARPIM TABLOSU - 3. SINIF PLATFORM OYUNU
+       Tek dosya bağımsız HTML5 Canvas, Web Audio API ve Vanilla JavaScript
+       ========================================================================== */
+
+    // 1. WEB AUDIO API SES SENTEZLEYİCİ
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      jump() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t = this.ctx.currentTime;
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(150, t);
+        osc.frequency.exponentialRampToValueAtTime(420, t + 0.14);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.14);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.14);
+      }
+      correct() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        const t = this.ctx.currentTime;
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const start = t + idx * 0.08;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.24, start);
+          gain.gain.exponentialRampToValueAtTime(0.01, start + 0.16);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.16);
+        });
+      }
+      wrong() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t = this.ctx.currentTime;
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(260, t);
+        osc.frequency.linearRampToValueAtTime(120, t + 0.25);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.25);
+      }
+      turtleEmerge() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t = this.ctx.currentTime;
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, t);
+        osc.frequency.exponentialRampToValueAtTime(320, t + 0.18);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.2);
+      }
+      lifeLost() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [320, 240, 180, 120].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const start = t + idx * 0.09;
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.22, start);
+          gain.gain.exponentialRampToValueAtTime(0.01, start + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.12);
+        });
+      }
+      levelClear() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const melody = [392, 523.25, 659.25, 783.99, 1046.5];
+        const t = this.ctx.currentTime;
+        melody.forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const start = t + idx * 0.12;
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(f, start);
+          gain.gain.setValueAtTime(0.16, start);
+          gain.gain.exponentialRampToValueAtTime(0.01, start + 0.22);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.22);
+        });
+      }
+      princessFanfare() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const melody = [523.25, 659.25, 783.99, 1046.5, 987.77, 1046.5, 1318.51];
+        const t = this.ctx.currentTime;
+        melody.forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const start = t + idx * 0.16;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, start);
+          gain.gain.setValueAtTime(0.28, start);
+          gain.gain.exponentialRampToValueAtTime(0.01, start + (idx === melody.length - 1 ? 0.8 : 0.25));
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(start);
+          osc.stop(start + (idx === melody.length - 1 ? 0.8 : 0.25));
+        });
+      }
+    }
+    const sound = new SoundFX();
+
+    // 2. 3. SINIF ÇARPIM TABLOSU BÖLÜM VE TEMA BİLGİLERİ
+    const LEVELS = [
+      {
+        name: "1. Bölüm: Çimenli Tepe",
+        desc: "2, 3 ve 4'ler Çarpım Tablosu",
+        theme: "grassland",
+        sky: ["#38bdf8", "#bae6fd"],
+        ground: "#16a34a",
+        groundSub: "#15803d",
+        questions: []
+      },
+      {
+        name: "2. Bölüm: Altın Çöl",
+        desc: "5, 6 ve 7'ler Çarpım Tablosu",
+        theme: "desert",
+        sky: ["#fb923c", "#fed7aa"],
+        ground: "#d97706",
+        groundSub: "#b45309",
+        questions: []
+      },
+      {
+        name: "3. Bölüm: Buz Krallığı",
+        desc: "8, 9 ve 10'lar Çarpım Tablosu",
+        theme: "iceland",
+        sky: ["#818cf8", "#e0e7ff"],
+        ground: "#38bdf8",
+        groundSub: "#0284c7",
+        questions: []
+      },
+      {
+        name: "4. Bölüm: Prensesin Şatosu",
+        desc: "Karma Zorlu Sorular & Final Kurtarma!",
+        theme: "castle",
+        sky: ["#6366f1", "#f43f5e"],
+        ground: "#475569",
+        groundSub: "#334155",
+        questions: []
+      }
+    ];
+
+    // 3. KOSTÜM TANIMLARI (12 Adet 3 Boyutlu Seçkin Kostüm & Yüksek Altın Sistemi)
+    const COSTUMES = [
+      {
+        id: 'classic',
+        name: 'Klasik Mario Kedi',
+        desc: '3 Boyutlu ikonik kırmızı şapka ve mavi işçi tulumu!',
+        cost: 0,
+        minScore: 0,
+        hatColor: '#dc2626',
+        shirtColor: '#dc2626',
+        overallsColor: '#2563eb',
+        badge: 'M',
+        tag: 'BAŞLANGIÇ',
+        icon: '🐱'
+      },
+      {
+        id: 'luigi',
+        name: 'Luigi Kedi Stili',
+        desc: 'Zümrüt yeşili 3D şapka, kobalt tulum ve cesur macera ruhu!',
+        cost: 25,
+        minScore: 400,
+        hatColor: '#16a34a',
+        shirtColor: '#16a34a',
+        overallsColor: '#1d4ed8',
+        badge: 'L',
+        tag: 'POPÜLER',
+        icon: '🟢'
+      },
+      {
+        id: 'fire',
+        name: 'Ateş Kedisi (Fire Cat)',
+        desc: 'Ateş çiçeği gücü! Sedefli beyaz şapka ve alev aurası.',
+        cost: 55,
+        minScore: 1000,
+        hatColor: '#ffffff',
+        shirtColor: '#ffffff',
+        overallsColor: '#dc2626',
+        specialAura: 'fire',
+        badge: 'F',
+        tag: 'ALEVLİ',
+        icon: '🔥'
+      },
+      {
+        id: 'ice',
+        name: 'Buz Kristali Kedisi',
+        desc: 'Kutup soğuğu! Buzul mavisi tulum ve uçuşan kar kristalleri.',
+        cost: 85,
+        minScore: 1800,
+        hatColor: '#06b6d4',
+        shirtColor: '#0891b2',
+        overallsColor: '#0284c7',
+        specialAura: 'ice',
+        badge: 'I',
+        tag: 'DONMUŞ',
+        icon: '❄️'
+      },
+      {
+        id: 'tanooki',
+        name: 'Tanooki Rakun Kedi',
+        desc: 'Özel yaprak gücü! 3D çizgili tüylü rakun kuyruğu ve kestane kürk.',
+        cost: 120,
+        minScore: 2500,
+        hatColor: '#92400e',
+        shirtColor: '#b45309',
+        overallsColor: '#78350f',
+        badge: 'T',
+        tag: 'ÖZEL GÜÇ',
+        icon: '🍂'
+      },
+      {
+        id: 'super_cape',
+        name: 'Süper Kahraman Kedisi',
+        desc: 'Gizemli maske, uçuşan 3D sarı pelerin ve yıldızlar!',
+        cost: 165,
+        minScore: 3200,
+        hatColor: '#4f46e5',
+        shirtColor: '#4338ca',
+        overallsColor: '#312e81',
+        capeColor: '#facc15',
+        hasMask: true,
+        specialAura: 'stars',
+        badge: 'S',
+        tag: 'EFSANEVİ',
+        icon: '🦸'
+      },
+      {
+        id: 'rainbow',
+        name: 'Gökkuşağı Yıldız Kedisi',
+        desc: 'Süper Yıldız gücü! Renk değiştiren prizmatik gökkuşağı aurası.',
+        cost: 220,
+        minScore: 4000,
+        hatColor: '#ec4899',
+        shirtColor: '#8b5cf6',
+        overallsColor: '#3b82f6',
+        specialAura: 'rainbow',
+        badge: '⭐',
+        tag: 'YILDIZ GÜCÜ',
+        icon: '🌈'
+      },
+      {
+        id: 'diamond_knight',
+        name: 'Elmas Şövalye Kedisi',
+        desc: '3 Boyutlu elmas kask, zırhlı tulum ve kristal parlama efektleri!',
+        cost: 280,
+        minScore: 5000,
+        hatColor: '#0284c7',
+        shirtColor: '#0369a1',
+        overallsColor: '#075985',
+        specialAura: 'ice',
+        badge: '⚔️',
+        tag: 'ZIRHLI',
+        icon: '💎'
+      },
+      {
+        id: 'cosmic',
+        name: 'Kozmik Galaksi Kedisi',
+        desc: 'Derin uzay nebulası! Parıldayan yıldız tozu ve kozmik halkalar.',
+        cost: 350,
+        minScore: 6200,
+        hatColor: '#1e1b4b',
+        shirtColor: '#312e81',
+        overallsColor: '#0f172a',
+        capeColor: '#4338ca',
+        specialAura: 'cosmic',
+        badge: '🌌',
+        tag: 'KOZMİK',
+        icon: '🪐'
+      },
+      {
+        id: 'cyber_mecha',
+        name: 'Siber Mecha Kedisi',
+        desc: 'Geleceğin robotu! Parlayan LED vizör ve siber devre çizgileri.',
+        cost: 430,
+        minScore: 7500,
+        hatColor: '#334155',
+        shirtColor: '#1e293b',
+        overallsColor: '#0f172a',
+        specialAura: 'cyber',
+        badge: '🤖',
+        tag: 'FÜTÜRİSTİK',
+        icon: '⚡'
+      },
+      {
+        id: 'unicorn',
+        name: 'Sihirli Unicorn Kedi',
+        desc: 'Altın boynuz, pastel ebruli kürk ve peri tozu aurası.',
+        cost: 520,
+        minScore: 8800,
+        hatColor: '#f472b6',
+        shirtColor: '#fbcfe8',
+        overallsColor: '#c084fc',
+        specialAura: 'rainbow',
+        badge: '🦄',
+        tag: 'BÜYÜLÜ',
+        icon: '🦄'
+      },
+      {
+        id: 'royal_gold',
+        name: '24K Saf Altın Kral Kedi',
+        desc: 'Saf altın taç, kraliyet yakutları, mor kadife pelerin ve altın ışıltı!',
+        cost: 650,
+        minScore: 10000,
+        hatColor: '#eab308',
+        shirtColor: '#fbbf24',
+        overallsColor: '#581c87',
+        capeColor: '#9333ea',
+        hasCrown: true,
+        specialAura: 'gold',
+        badge: '👑',
+        tag: 'HÜKÜMDAR',
+        icon: '👑'
+      }
+    ];
+
+    // Dinamik Rastgele Soru Üretici (Her baştan başlama veya can bitişinde sorular değişir)
+    function generateLevelQuestions(lvlIdx) {
+      const pool = [];
+      if (lvlIdx === 0) {
+        for (const t of [2, 3, 4]) {
+          for (let m = 2; m <= 10; m++) pool.push([t, m]);
+        }
+      } else if (lvlIdx === 1) {
+        for (const t of [5, 6, 7]) {
+          for (let m = 2; m <= 10; m++) pool.push([t, m]);
+        }
+      } else if (lvlIdx === 2) {
+        for (const t of [8, 9, 10]) {
+          for (let m = 2; m <= 10; m++) pool.push([t, m]);
+        }
+      } else {
+        for (const t of [4, 5, 6, 7, 8, 9]) {
+          for (let m = 6; m <= 9; m++) pool.push([t, m]);
+        }
+        pool.push([7, 7], [8, 8], [9, 9], [6, 7], [7, 8], [8, 9], [6, 8], [7, 9], [9, 6], [8, 7]);
+      }
+
+      const shuffled = pool.sort(() => Math.random() - 0.5);
+      const selected = [];
+      const seen = new Set();
+      for (const [n1, n2] of shuffled) {
+        const k1 = `${n1}x${n2}`;
+        const k2 = `${n2}x${n1}`;
+        if (!seen.has(k1) && !seen.has(k2)) {
+          seen.add(k1);
+          selected.push(Math.random() > 0.5 ? [n2, n1] : [n1, n2]);
+        }
+        if (selected.length >= 10) break;
+      }
+      while (selected.length < 10) {
+        selected.push(pool[Math.floor(Math.random() * pool.length)]);
+      }
+      return selected;
+    }
+
+    function generateChoices(n1, n2, answer) {
+      const set = new Set([answer]);
+      const offsets = [-2, 2, -1, 1, -n2, n2, -n1, n1, -3, 3, -10, 10];
+      for (const off of offsets) {
+        const val = answer + off;
+        if (val > 0 && val !== answer) set.add(val);
+        if (set.size >= 3) break;
+      }
+      while (set.size < 3) {
+        const r = Math.floor(Math.random() * 20) + Math.max(2, answer - 10);
+        if (r > 0 && r !== answer) set.add(r);
+      }
+      return Array.from(set).sort(() => Math.random() - 0.5);
+    }
+
+    // 4. OYUN MOTORU & CANVAS RENDERER
+    class GameApp {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.width = 960;
+        this.height = 540;
+        this.groundY = 440;
+
+        this.levelIndex = 0;
+        this.questionIndex = 0;
+        this.score = 0;
+        this.streak = 0;
+        this.coins = 0;
+        this.lives = 3;
+
+        this.currentCostumeId = 'classic';
+        this.unlockedCostumeIds = ['classic'];
+
+        this.worldScroll = 0;
+        this.isAdvancing = false;
+        this.advanceTimer = 0;
+
+        this.isCastleRevealed = false;
+        this.isCastleRun = false;
+        this.isHugging = false;
+        this.hugTimer = 0;
+        this.hugHeartTimer = 0;
+
+        this.turtles = [];
+
+        this.cat = {
+          x: 140,
+          y: 376,
+          w: 54,
+          h: 64,
+          vx: 0,
+          vy: 0,
+          speed: 5.8,
+          jumpPower: -13.8,
+          isGrounded: true,
+          facing: 'right',
+          walkCycle: 0,
+          isJumping: false,
+          happyTimer: 0,
+          shakeTimer: 0,
+          invulnerableTimer: 0
+        };
+
+        this.princess = {
+          x: 790,
+          y: 366,
+          w: 56,
+          h: 74
+        };
+
+        this.keys = { left: false, right: false, jump: false };
+        this.blocks = [];
+        this.brickShards = [];
+        this.speedLines = [];
+        this.goldCoin = null;
+        this.particles = [];
+        this.floatingTexts = [];
+        this.clouds = [
+          { x: 50, y: 70, s: 1.1, sp: 0.3 },
+          { x: 380, y: 110, s: 0.8, sp: 0.2 },
+          { x: 720, y: 60, s: 1.2, sp: 0.35 }
+        ];
+
+        this.lastTime = performance.now();
+        this.initControls();
+        this.initShopUI();
+        this.startLevel(0);
+
+        this.loop = this.loop.bind(this);
+        requestAnimationFrame(this.loop);
+      }
+
+      startLevel(lvl) {
+        this.levelIndex = lvl;
+        // Her bölüm başladığında veya tekrarlandığında rastgele yepyeni sorular üretilir
+        LEVELS[lvl].questions = generateLevelQuestions(lvl);
+        this.questionIndex = 0;
+        this.worldScroll = 0;
+        this.isAdvancing = false;
+        this.isCastleRevealed = false;
+        this.isCastleRun = false;
+        this.isHugging = false;
+        this.hugTimer = 0;
+        this.turtles = [];
+
+        this.cat.x = 140;
+        this.cat.y = this.groundY - this.cat.h;
+        this.cat.vx = 0;
+        this.cat.vy = 0;
+        this.cat.invulnerableTimer = 0;
+
+        document.getElementById('level-modal').style.display = 'none';
+        document.getElementById('game-over-modal').style.display = 'none';
+        document.getElementById('victory-modal').style.display = 'none';
+
+        this.updateHUD();
+        this.loadQuestion();
+      }
+
+      updateHUD() {
+        document.getElementById('header-coins').innerText = this.coins;
+        document.getElementById('hud-score').innerText = this.score;
+
+        for (let i = 1; i <= 3; i++) {
+          const heartEl = document.getElementById(`heart-${i}`);
+          if (i <= this.lives) {
+            heartEl.className = 'heart-icon';
+            heartEl.innerText = '❤️';
+          } else {
+            heartEl.className = 'heart-icon heart-lost';
+            heartEl.innerText = '🖤';
+          }
+        }
+      }
+
+      loadQuestion() {
+        const lvlData = LEVELS[this.levelIndex];
+        const [n1, n2] = lvlData.questions[this.questionIndex];
+        const answer = n1 * n2;
+        const choices = generateChoices(n1, n2, answer);
+
+        document.getElementById('hud-level-name').innerText = lvlData.name;
+        document.getElementById('hud-question-prog').innerText = `Soru ${this.questionIndex + 1}/10`;
+        document.getElementById('hud-question').innerText = `${n1} x ${n2} = ?`;
+        document.getElementById('hint-box').style.display = 'none';
+
+        this.cat.x = 140;
+        this.cat.vx = 0;
+
+        if (this.levelIndex === 3) {
+          this.isCastleRevealed = false;
+          this.isCastleRun = false;
+          this.isHugging = false;
+        }
+
+        const blockW = 76;
+        const blockH = 64;
+        const startX = 140;
+        const spacing = 200;
+        const blockY = 220;
+
+        this.blocks = choices.map((val, idx) => ({
+          x: startX + idx * spacing,
+          y: blockY,
+          w: blockW,
+          h: blockH,
+          value: val,
+          isCorrect: val === answer,
+          offsetY: -220,
+          shakeX: 0,
+          shakeTimer: 0,
+          state: 'idle'
+        }));
+      }
+
+      handleHit(b) {
+        if (b.isCorrect) {
+          b.state = 'broken';
+          sound.correct();
+          if (navigator.vibrate) navigator.vibrate([40, 30, 60]);
+
+          const dirs = [
+            { vx: -3.8, vy: -7.5 }, { vx: 3.8, vy: -7.5 },
+            { vx: -2.8, vy: -4.5 }, { vx: 2.8, vy: -4.5 }
+          ];
+          for (const d of dirs) {
+            this.brickShards.push({
+              x: b.x + b.w / 2,
+              y: b.y + b.h / 2,
+              vx: d.vx,
+              vy: d.vy,
+              rot: Math.random() * 6,
+              vRot: (Math.random() - 0.5) * 12,
+              size: 16
+            });
+          }
+
+          this.goldCoin = {
+            x: b.x + b.w / 2,
+            y: b.y - 12,
+            vy: -9.5,
+            startY: b.y,
+            spin: 0,
+            active: true
+          };
+
+          for (const other of this.blocks) {
+            if (other !== b) other.state = 'broken';
+          }
+
+          const bonusCoins = this.streak >= 2 ? 2 : 1;
+          this.coins += bonusCoins;
+          const bonusPts = 100 + this.streak * 25;
+          this.score += bonusPts;
+          this.streak += 1;
+          this.cat.happyTimer = 0.5;
+
+          const isFinal40 = (this.levelIndex === 3 && this.questionIndex === 9);
+          const praise = isFinal40 ? 'PRENSESİ BULDUK! 👑' : 'HARİKA!';
+          this.addFloatingText(b.x + b.w / 2, b.y - 15, praise, '#facc15', 28);
+          this.addFloatingText(b.x + b.w / 2, b.y - 45, `+${bonusPts} (+${bonusCoins}🪙)`, '#ffffff', 20);
+
+          this.spawnSparkles(b.x + b.w / 2, b.y + b.h / 2);
+          this.updateHUD();
+
+          this.turtles = [];
+
+          if (isFinal40) {
+            setTimeout(() => {
+              this.isCastleRevealed = true;
+              this.isCastleRun = true;
+            }, 300);
+          } else {
+            setTimeout(() => {
+              this.isAdvancing = true;
+              this.advanceTimer = 1.3;
+            }, 250);
+          }
+
+        } else {
+          // YANLIŞ CEVAP: Blok sarsılır, kaplumbağa çıkar ve DİREK 1 CANI SİLER!
+          b.state = 'hit_wrong';
+          b.shakeTimer = 0.45;
+          sound.wrong();
+          if (navigator.vibrate) navigator.vibrate(150);
+
+          this.streak = 0;
+          this.cat.shakeTimer = 0.4;
+          this.cat.invulnerableTimer = 1.3;
+
+          this.spawnTurtleEnemy(b.x + b.w / 2 - 20, b.y + b.h);
+
+          // DİREK 1 CAN SİLİNİR (Kaplumbağa hemen canı alır!)
+          this.lives -= 1;
+          sound.lifeLost();
+          if (navigator.vibrate) navigator.vibrate([80, 50, 150]);
+
+          const lvlData = LEVELS[this.levelIndex];
+          const [n1, n2] = lvlData.questions[this.questionIndex];
+          const hintBox = document.getElementById('hint-box');
+          hintBox.innerText = `🐢 DİKKAT! Kaplumbağa 1 canını aldı! İpucu: ${n1} x ${n2} demek ${n1} tane ${n2}'nin toplamıdır!`;
+          hintBox.style.display = 'block';
+
+          this.addFloatingText(b.x + b.w / 2, b.y - 15, 'KAPLUMBAĞA CANINI ALDI! -1 CAN! 💔', '#ef4444', 24);
+          this.updateHUD();
+
+          // 3 CAN BİTİP ÖLDÜĞÜNDE PUANI SIFIRLA!
+          if (this.lives <= 0) {
+            this.score = 0;
+            this.streak = 0;
+            this.gameOver();
+          }
+        }
+      }
+
+      spawnTurtleEnemy(x, y) {
+        sound.turtleEmerge();
+        this.turtles.push({
+          x,
+          y,
+          w: 42,
+          h: 40,
+          vx: this.cat.x > x ? 2.4 : -2.4,
+          vy: -4.5,
+          facing: this.cat.x > x ? 'right' : 'left',
+          walkCycle: 0,
+          active: true,
+          opacity: 1
+        });
+      }
+
+      levelCompleted() {
+        sound.levelClear();
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+
+        this.coins += 4;
+        this.updateHUD();
+        this.spawnConfetti(110);
+
+        if (this.levelIndex === 3) {
+          sound.princessFanfare();
+          document.getElementById('final-score').innerText = this.score;
+          document.getElementById('final-coins').innerText = `🪙 ${this.coins}`;
+          document.getElementById('victory-modal').style.display = 'flex';
+        } else {
+          document.getElementById('level-modal-title').innerText = `${LEVELS[this.levelIndex].name} Tamamlandı!`;
+          document.getElementById('level-modal-score').innerText = this.score;
+          document.getElementById('level-modal-coins').innerText = `🪙 ${this.coins}`;
+          document.getElementById('level-modal').style.display = 'flex';
+        }
+      }
+
+      gameOver() {
+        this.score = 0;
+        this.streak = 0;
+        document.getElementById('game-over-score').innerText = '0 (Sıfırlandı)';
+        document.getElementById('game-over-coins').innerText = `🪙 ${this.coins}`;
+        document.getElementById('game-over-modal').style.display = 'flex';
+      }
+
+      retryLevelAfterGameOver() {
+        this.score = 0;
+        this.streak = 0;
+        this.lives = 3;
+        this.startLevel(this.levelIndex);
+      }
+
+      nextLevel() {
+        if (this.levelIndex < 3) {
+          this.startLevel(this.levelIndex + 1);
+        }
+      }
+
+      restartGame() {
+        this.score = 0;
+        this.streak = 0;
+        this.lives = 3;
+        this.startLevel(0);
+      }
+
+      addFloatingText(x, y, text, color, size) {
+        this.floatingTexts.push({ x, y, text, color, size, alpha: 1, vy: -1.8 });
+      }
+
+      spawnSparkles(x, y) {
+        const colors = ['#facc15', '#38bdf8', '#4ade80', '#ec4899', '#ffffff'];
+        for (let i = 0; i < 22; i++) {
+          const a = (Math.PI * 2 * i) / 22;
+          const sp = 2.5 + Math.random() * 4;
+          this.particles.push({
+            x, y,
+            vx: Math.cos(a) * sp,
+            vy: Math.sin(a) * sp - 2,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: 5 + Math.random() * 5,
+            alpha: 1,
+            life: 0,
+            maxLife: 0.6
+          });
+        }
+      }
+
+      spawnConfetti(count) {
+        const colors = ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#3b82f6', '#10b981', '#facc15'];
+        for (let i = 0; i < count; i++) {
+          this.particles.push({
+            x: Math.random() * this.width,
+            y: -10 - Math.random() * 60,
+            vx: (Math.random() - 0.5) * 4,
+            vy: 2 + Math.random() * 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: 6 + Math.random() * 7,
+            alpha: 1,
+            life: 0,
+            maxLife: 2.2,
+            rot: Math.random() * 6,
+            vRot: (Math.random() - 0.5) * 6
+          });
+        }
+      }
+
+      spawnHeart(x, y) {
+        this.particles.push({
+          x, y,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: -1.8 - Math.random() * 1.5,
+          color: '#ec4899',
+          size: 14 + Math.random() * 8,
+          alpha: 1,
+          life: 0,
+          maxLife: 1.2,
+          type: 'heart'
+        });
+      }
+
+      // 5. OYUN DÖNGÜSÜ & FİZİK
+      loop(timestamp) {
+        const dt = Math.min((timestamp - this.lastTime) / 1000, 0.1);
+        this.lastTime = timestamp;
+
+        this.update(dt);
+        this.render();
+
+        requestAnimationFrame(this.loop);
+      }
+
+      update(dt) {
+        if (this.cat.invulnerableTimer > 0) {
+          this.cat.invulnerableTimer -= dt;
+        }
+
+        if (this.isAdvancing) {
+          this.advanceTimer -= dt;
+          this.worldScroll += 460 * dt;
+          this.cat.facing = 'right';
+          this.cat.walkCycle += dt * 24;
+          this.cat.isGrounded = true;
+
+          const targetX = 160;
+          this.cat.x += (targetX - this.cat.x) * 4 * dt;
+
+          if (Math.random() < 0.35) {
+            this.speedLines.push({
+              x: this.width + 10,
+              y: 80 + Math.random() * 320,
+              len: 60 + Math.random() * 80,
+              speed: 800 + Math.random() * 300,
+              alpha: 0.7
+            });
+          }
+
+          if (this.advanceTimer <= 0) {
+            this.isAdvancing = false;
+            if (this.questionIndex + 1 >= LEVELS[this.levelIndex].questions.length) {
+              this.levelCompleted();
+            } else {
+              this.questionIndex += 1;
+              this.loadQuestion();
+            }
+          }
+        }
+        else if (this.isCastleRun) {
+          this.cat.facing = 'right';
+          this.cat.walkCycle += dt * 22;
+          this.cat.isGrounded = true;
+          this.cat.x += 240 * dt;
+
+          if (this.cat.x >= this.princess.x - 48) {
+            this.cat.x = this.princess.x - 48;
+            this.isCastleRun = false;
+            this.isHugging = true;
+            this.hugTimer = 4.0;
+            for (let i = 0; i < 8; i++) {
+              this.spawnHeart(this.princess.x - 20, this.princess.y - 10);
+            }
+          }
+        }
+        else if (this.isHugging) {
+          this.hugTimer -= dt;
+          this.cat.x = this.princess.x - 48;
+          this.cat.isGrounded = true;
+          this.cat.walkCycle = 0;
+
+          this.hugHeartTimer += dt;
+          if (this.hugHeartTimer >= 0.25) {
+            this.hugHeartTimer = 0;
+            this.spawnHeart(this.princess.x - 24 + (Math.random() - 0.5) * 30, this.princess.y - 20);
+          }
+
+          if (this.hugTimer <= 0) {
+            this.isHugging = false;
+            this.levelCompleted();
+          }
+        }
+        else {
+          let moveDir = 0;
+          if (this.keys.left) moveDir -= 1;
+          if (this.keys.right) moveDir += 1;
+
+          if (moveDir !== 0) {
+            this.cat.vx = moveDir * this.cat.speed;
+            this.cat.facing = moveDir > 0 ? 'right' : 'left';
+            if (this.cat.isGrounded) this.cat.walkCycle += dt * 14;
+          } else {
+            this.cat.vx *= 0.75;
+            if (Math.abs(this.cat.vx) < 0.1) this.cat.vx = 0;
+            this.cat.walkCycle = 0;
+          }
+
+          this.cat.x += this.cat.vx;
+          if (this.cat.x < 20) this.cat.x = 20;
+          if (this.cat.x > this.width - this.cat.w - 20) this.cat.x = this.width - this.cat.w - 20;
+        }
+
+        if (!this.isHugging) {
+          const gravity = 0.58;
+          this.cat.vy += gravity;
+          this.cat.y += this.cat.vy;
+
+          const floorY = this.groundY - this.cat.h;
+          if (this.cat.y >= floorY) {
+            this.cat.y = floorY;
+            this.cat.vy = 0;
+            this.cat.isGrounded = true;
+            this.cat.isJumping = false;
+          } else {
+            this.cat.isGrounded = false;
+          }
+        }
+
+        if (this.cat.shakeTimer > 0) this.cat.shakeTimer -= dt;
+        if (this.cat.happyTimer > 0) this.cat.happyTimer -= dt;
+
+        // Özel Kostüm Auraları (Ateş / Yıldız / Altın / Buz / Gökkuşağı / Kozmik / Siber)
+        const activeCostume = COSTUMES.find(c => c.id === this.currentCostumeId);
+        if (activeCostume && activeCostume.specialAura === 'fire' && Math.random() < 0.28) {
+          this.particles.push({
+            x: this.cat.x + this.cat.w / 2 + (Math.random() - 0.5) * 16,
+            y: this.cat.y + this.cat.h - 6,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: -1.5 - Math.random() * 2,
+            color: Math.random() > 0.5 ? '#f97316' : '#ef4444',
+            size: 3.5 + Math.random() * 3,
+            alpha: 0.9,
+            life: 0,
+            maxLife: 0.35
+          });
+        } else if (activeCostume && activeCostume.specialAura === 'stars' && Math.random() < 0.22) {
+          this.particles.push({
+            x: this.cat.x + Math.random() * this.cat.w,
+            y: this.cat.y + Math.random() * this.cat.h,
+            vx: (Math.random() - 0.5),
+            vy: -0.8,
+            color: '#818cf8',
+            size: 4 + Math.random() * 3,
+            alpha: 0.8,
+            life: 0,
+            maxLife: 0.4
+          });
+        } else if (activeCostume && activeCostume.specialAura === 'gold' && Math.random() < 0.25) {
+          this.particles.push({
+            x: this.cat.x + Math.random() * this.cat.w,
+            y: this.cat.y + Math.random() * this.cat.h,
+            vx: (Math.random() - 0.5) * 1.2,
+            vy: -1,
+            color: '#facc15',
+            size: 3.5 + Math.random() * 3,
+            alpha: 0.9,
+            life: 0,
+            maxLife: 0.45
+          });
+        } else if (activeCostume && activeCostume.specialAura === 'ice' && Math.random() < 0.25) {
+          this.particles.push({
+            x: this.cat.x + Math.random() * this.cat.w,
+            y: this.cat.y + Math.random() * this.cat.h,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: -0.5 - Math.random() * 1.2,
+            color: Math.random() > 0.5 ? '#38bdf8' : '#e0f2fe',
+            size: 3 + Math.random() * 3,
+            alpha: 0.9,
+            life: 0,
+            maxLife: 0.4
+          });
+        } else if (activeCostume && activeCostume.specialAura === 'rainbow' && Math.random() < 0.3) {
+          const rainbowColors = ['#f43f5e', '#ec4899', '#a855f7', '#3b82f6', '#10b981', '#facc15'];
+          this.particles.push({
+            x: this.cat.x + Math.random() * this.cat.w,
+            y: this.cat.y + Math.random() * this.cat.h,
+            vx: (Math.random() - 0.5) * 1.2,
+            vy: -0.8 - Math.random() * 1.5,
+            color: rainbowColors[Math.floor(Math.random() * rainbowColors.length)],
+            size: 4 + Math.random() * 3,
+            alpha: 0.95,
+            life: 0,
+            maxLife: 0.5
+          });
+        } else if (activeCostume && activeCostume.specialAura === 'cosmic' && Math.random() < 0.25) {
+          this.particles.push({
+            x: this.cat.x + Math.random() * this.cat.w,
+            y: this.cat.y + Math.random() * this.cat.h,
+            vx: (Math.random() - 0.5) * 1.4,
+            vy: -1.2,
+            color: Math.random() > 0.5 ? '#c084fc' : '#38bdf8',
+            size: 3.5 + Math.random() * 3.5,
+            alpha: 0.85,
+            life: 0,
+            maxLife: 0.45
+          });
+        } else if (activeCostume && activeCostume.specialAura === 'cyber' && Math.random() < 0.25) {
+          this.particles.push({
+            x: this.cat.x + Math.random() * this.cat.w,
+            y: this.cat.y + Math.random() * this.cat.h,
+            vx: (Math.random() - 0.5) * 1.6,
+            vy: -1.5,
+            color: Math.random() > 0.5 ? '#22d3ee' : '#4ade80',
+            size: 3 + Math.random() * 3,
+            alpha: 0.9,
+            life: 0,
+            maxLife: 0.35
+          });
+        }
+
+        for (const b of this.blocks) {
+          if (b.offsetY < 0 && b.state === 'idle') {
+            b.offsetY += dt * 700;
+            if (b.offsetY > 0) b.offsetY = 0;
+          }
+        }
+
+        // Kaplumbağaların Hareketi ve Çarpışma
+        for (let i = this.turtles.length - 1; i >= 0; i--) {
+          const t = this.turtles[i];
+          if (!t.active) {
+            this.turtles.splice(i, 1);
+            continue;
+          }
+
+          t.vy += 0.45;
+          t.y += t.vy;
+          const floorT = this.groundY - t.h;
+          if (t.y >= floorT) {
+            t.y = floorT;
+            t.vy = 0;
+          }
+
+          t.walkCycle += dt * 10;
+          const dir = this.cat.x > t.x ? 1 : -1;
+          t.facing = dir > 0 ? 'right' : 'left';
+          t.vx = dir * 2.4;
+          t.x += t.vx;
+
+          const catBox = { x: this.cat.x + 6, y: this.cat.y, w: this.cat.w - 12, h: this.cat.h };
+          const turtleBox = { x: t.x + 4, y: t.y, w: t.w - 8, h: t.h };
+
+          const overlaps =
+            catBox.x < turtleBox.x + turtleBox.w &&
+            catBox.x + catBox.w > turtleBox.x &&
+            catBox.y < turtleBox.y + turtleBox.h &&
+            catBox.y + catBox.h > turtleBox.y;
+
+          if (overlaps) {
+            if (this.cat.vy > 1 && (this.cat.y + this.cat.h - this.cat.vy) <= t.y + 16) {
+              this.cat.vy = -10.5;
+              sound.correct();
+              this.coins += 1;
+              this.addFloatingText(t.x + t.w / 2, t.y - 15, 'EZİLDİ! +1 🪙', '#4ade80', 22);
+              t.active = false;
+              this.updateHUD();
+            } else if (this.cat.invulnerableTimer <= 0) {
+              this.lives -= 1;
+              this.cat.invulnerableTimer = 1.4;
+              this.cat.shakeTimer = 0.5;
+              this.cat.vy = -6;
+              sound.lifeLost();
+              if (navigator.vibrate) navigator.vibrate([80, 50, 150]);
+
+              this.addFloatingText(this.cat.x + this.cat.w / 2, this.cat.y - 25, '-1 CAN! 💔', '#ef4444', 28);
+              t.active = false;
+              this.updateHUD();
+
+              if (this.lives <= 0) {
+                this.score = 0;
+                this.streak = 0;
+                this.gameOver();
+              }
+            }
+          }
+        }
+
+        // Bloklara Alttan Kafa Vurma
+        if (!this.isAdvancing && !this.isCastleRun && !this.isHugging && this.lives > 0) {
+          for (const b of this.blocks) {
+            if (b.state === 'broken') continue;
+
+            if (b.shakeTimer > 0) {
+              b.shakeTimer -= dt;
+              b.shakeX = Math.sin(b.shakeTimer * 40) * 7;
+              if (b.shakeTimer <= 0) {
+                b.shakeX = 0;
+                b.state = 'idle';
+              }
+            }
+
+            if (this.cat.vy < 0 || Math.abs(this.cat.vy) < 2) {
+              const catHeadY = this.cat.y;
+              const blockBottom = b.y + b.h + b.offsetY;
+
+              const overlapsX =
+                this.cat.x + this.cat.w > b.x + 8 &&
+                this.cat.x < b.x + b.w - 8;
+
+              const hitsBottom =
+                catHeadY <= blockBottom &&
+                catHeadY >= blockBottom - 26;
+
+              if (overlapsX && hitsBottom && b.state === 'idle') {
+                this.handleHit(b);
+                this.cat.vy = 2.5;
+                break;
+              }
+            }
+          }
+        }
+
+        // Altın Para Hareketi
+        if (this.goldCoin && this.goldCoin.active) {
+          this.goldCoin.vy += 0.5;
+          this.goldCoin.y += this.goldCoin.vy;
+          this.goldCoin.spin += dt * 15;
+          if (this.goldCoin.y >= this.goldCoin.startY - 4) {
+            this.goldCoin.active = false;
+          }
+        }
+
+        // Parçacıklar
+        for (let i = this.brickShards.length - 1; i >= 0; i--) {
+          const s = this.brickShards[i];
+          s.vy += 0.45;
+          s.x += s.vx;
+          s.y += s.vy;
+          s.rot += s.vRot * dt;
+          if (s.y > this.height + 40) this.brickShards.splice(i, 1);
+        }
+
+        for (let i = this.speedLines.length - 1; i >= 0; i--) {
+          const sl = this.speedLines[i];
+          sl.x -= sl.speed * dt;
+          sl.alpha -= dt * 0.8;
+          if (sl.x + sl.len < -20 || sl.alpha <= 0) this.speedLines.splice(i, 1);
+        }
+
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.type === 'heart' ? -0.2 : 0.15;
+          p.life += dt;
+          p.alpha = Math.max(0, 1 - p.life / p.maxLife);
+          if (p.life >= p.maxLife) this.particles.splice(i, 1);
+        }
+
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+          const ft = this.floatingTexts[i];
+          ft.y += ft.vy;
+          ft.alpha -= dt * 0.9;
+          if (ft.alpha <= 0) this.floatingTexts.splice(i, 1);
+        }
+
+        for (const cl of this.clouds) {
+          cl.x += cl.sp;
+          if (cl.x > this.width + 100) cl.x = -120;
+        }
+      }
+
+      // 6. RENDER (ÇİZİM METOTLARI)
+      render() {
+        const lvl = LEVELS[this.levelIndex];
+
+        // Gökyüzü Gradyanı
+        const skyGrad = this.ctx.createLinearGradient(0, 0, 0, this.groundY);
+        skyGrad.addColorStop(0, lvl.sky[0]);
+        skyGrad.addColorStop(1, lvl.sky[1]);
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        // Bulutlar
+        for (const cl of this.clouds) {
+          this.renderCloud(cl.x, cl.y, cl.s);
+        }
+
+        // Arka Plan Tepeleri
+        this.renderHills(lvl.groundSub);
+
+        // Şato (Finalde veya 4. Seviyede görünür)
+        if (this.levelIndex === 3 || this.isCastleRevealed) {
+          this.renderCastle();
+          this.renderPrincess();
+        }
+
+        // Zemin ve Çimenler
+        this.renderGround(lvl.ground, lvl.groundSub);
+
+        // Hız Çizgileri
+        this.renderSpeedLines();
+
+        // Tuğla Bloklar
+        for (const b of this.blocks) {
+          if (b.state !== 'broken') this.renderBlock(b);
+        }
+
+        // Tuğla Parçaları
+        for (const s of this.brickShards) {
+          this.renderBrickShard(s);
+        }
+
+        // Fırlayan Altın
+        if (this.goldCoin && this.goldCoin.active) {
+          this.renderGoldCoin(this.goldCoin);
+        }
+
+        // Kaplumbağalar
+        for (const t of this.turtles) {
+          if (t.active) this.renderTurtle(t);
+        }
+
+        // MARIO KEDİ (3 BOYUTLU)
+        this.renderCat();
+
+        // Teşekkür Konuşma Balonu
+        if (this.isHugging) {
+          this.renderThankYouBubble();
+        }
+
+        // Parçacıklar
+        for (const p of this.particles) {
+          this.ctx.save();
+          this.ctx.globalAlpha = p.alpha;
+          if (p.type === 'heart') {
+            this.ctx.fillStyle = p.color;
+            this.ctx.font = `${p.size}px sans-serif`;
+            this.ctx.fillText('💖', p.x, p.y);
+          } else {
+            this.ctx.fillStyle = p.color;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+            this.ctx.fill();
+          }
+          this.ctx.restore();
+        }
+
+        // Kayan Yazılar
+        for (const ft of this.floatingTexts) {
+          this.ctx.save();
+          this.ctx.globalAlpha = ft.alpha;
+          this.ctx.font = `bold ${ft.size}px 'Fredoka', sans-serif`;
+          this.ctx.fillStyle = ft.color;
+          this.ctx.strokeStyle = '#000000';
+          this.ctx.lineWidth = 4;
+          this.ctx.textAlign = 'center';
+          this.ctx.strokeText(ft.text, ft.x, ft.y);
+          this.ctx.fillText(ft.text, ft.x, ft.y);
+          this.ctx.restore();
+        }
+      }
+
+      renderCloud(x, y, scale) {
+        this.ctx.save();
+        this.ctx.translate(x, y);
+        this.ctx.scale(scale, scale);
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, 22, 0, Math.PI * 2);
+        this.ctx.arc(20, -10, 26, 0, Math.PI * 2);
+        this.ctx.arc(44, 0, 20, 0, Math.PI * 2);
+        this.ctx.arc(22, 10, 22, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      renderHills(color) {
+        this.ctx.save();
+        this.ctx.fillStyle = color;
+        this.ctx.globalAlpha = 0.45;
+        this.ctx.beginPath();
+        this.ctx.arc(160, this.groundY + 40, 150, Math.PI, 0, false);
+        this.ctx.arc(480, this.groundY + 60, 180, Math.PI, 0, false);
+        this.ctx.arc(820, this.groundY + 30, 140, Math.PI, 0, false);
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      renderGround(topColor, subColor) {
+        const gy = this.groundY;
+        this.ctx.save();
+
+        this.ctx.fillStyle = topColor;
+        this.ctx.fillRect(0, gy, this.width, 16);
+
+        this.ctx.fillStyle = subColor;
+        this.ctx.fillRect(0, gy + 16, this.width, this.height - gy - 16);
+
+        this.ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        for (let x = 0; x < this.width; x += 32) {
+          this.ctx.fillRect(x, gy + 24, 28, 14);
+          this.ctx.fillRect(x + 16, gy + 46, 28, 14);
+          this.ctx.fillRect(x, gy + 68, 28, 14);
+        }
+        this.ctx.restore();
+      }
+
+      renderBlock(b) {
+        const x = b.x + b.shakeX;
+        const y = b.y + b.offsetY;
+
+        this.ctx.save();
+
+        if (b.state === 'hit_wrong') {
+          this.ctx.fillStyle = '#7f1d1d';
+        } else {
+          this.ctx.fillStyle = '#b45309';
+        }
+        this.ctx.fillRect(x, y, b.w, b.h);
+
+        this.ctx.strokeStyle = '#78350f';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeRect(x, y, b.w, b.h);
+
+        this.ctx.fillStyle = '#fde68a';
+        this.ctx.fillRect(x + 3, y + 3, b.w - 6, 4);
+
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = "bold 26px 'Fredoka', sans-serif";
+        this.ctx.shadowColor = '#000000';
+        this.ctx.shadowBlur = 3;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 2;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(b.value, x + b.w / 2, y + b.h / 2);
+
+        this.ctx.restore();
+      }
+
+      renderGoldCoin(coin) {
+        this.ctx.save();
+        this.ctx.translate(coin.x, coin.y);
+        const scaleX = Math.cos(coin.spin);
+        this.ctx.scale(scaleX, 1);
+        this.ctx.fillStyle = '#facc15';
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, 16, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.strokeStyle = '#ca8a04';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
+        this.ctx.fillStyle = '#854d0e';
+        this.ctx.font = 'bold 15px sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('$', 0, 1);
+        this.ctx.restore();
+      }
+
+      renderBrickShard(s) {
+        this.ctx.save();
+        this.ctx.translate(s.x, s.y);
+        this.ctx.rotate(s.rot);
+        this.ctx.fillStyle = '#b45309';
+        this.ctx.fillRect(-s.size / 2, -s.size / 2, s.size, s.size);
+        this.ctx.strokeStyle = '#78350f';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(-s.size / 2, -s.size / 2, s.size, s.size);
+        this.ctx.restore();
+      }
+
+      renderSpeedLines() {
+        this.ctx.save();
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.lineWidth = 3;
+        for (const sl of this.speedLines) {
+          this.ctx.globalAlpha = sl.alpha;
+          this.ctx.beginPath();
+          this.ctx.moveTo(sl.x, sl.y);
+          this.ctx.lineTo(sl.x + sl.len, sl.y);
+          this.ctx.stroke();
+        }
+        this.ctx.restore();
+      }
+
+      renderTurtle(t) {
+        this.ctx.save();
+        this.ctx.translate(t.x + t.w / 2, t.y + t.h / 2);
+        if (t.facing === 'left') this.ctx.scale(-1, 1);
+
+        this.ctx.fillStyle = '#16a34a';
+        this.ctx.beginPath();
+        this.ctx.arc(0, -2, 16, Math.PI, 0, false);
+        this.ctx.fill();
+        this.ctx.strokeStyle = '#14532d';
+        this.ctx.lineWidth = 2.5;
+        this.ctx.stroke();
+
+        this.ctx.fillStyle = '#f8fafc';
+        this.ctx.fillRect(-18, -2, 36, 6);
+        this.ctx.strokeRect(-18, -2, 36, 6);
+
+        this.ctx.fillStyle = '#facc15';
+        this.ctx.beginPath();
+        this.ctx.arc(14, -6, 9, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.fillStyle = '#000000';
+        this.ctx.fillRect(16, -9, 3, 5);
+
+        const legOffset = Math.sin(t.walkCycle) * 4;
+        this.ctx.fillStyle = '#facc15';
+        this.ctx.beginPath();
+        this.ctx.arc(-10 + legOffset, 14, 6, 0, Math.PI * 2);
+        this.ctx.arc(10 - legOffset, 14, 6, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.restore();
+      }
+
+      renderCastle() {
+        const cx = 710;
+        const cy = this.groundY;
+
+        this.ctx.save();
+        this.ctx.fillStyle = '#cbd5e1';
+        this.ctx.fillRect(cx, cy - 140, 180, 140);
+        this.ctx.strokeStyle = '#475569';
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeRect(cx, cy - 140, 180, 140);
+
+        this.ctx.fillRect(cx - 30, cy - 180, 50, 180);
+        this.ctx.strokeRect(cx - 30, cy - 180, 50, 180);
+        this.ctx.fillRect(cx + 160, cy - 180, 50, 180);
+        this.ctx.strokeRect(cx + 160, cy - 180, 50, 180);
+
+        this.ctx.fillStyle = '#ef4444';
+        this.ctx.beginPath();
+        this.ctx.moveTo(cx - 35, cy - 180);
+        this.ctx.lineTo(cx - 5, cy - 230);
+        this.ctx.lineTo(cx + 25, cy - 180);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(cx + 155, cy - 180);
+        this.ctx.lineTo(cx + 185, cy - 230);
+        this.ctx.lineTo(cx + 215, cy - 180);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.fillStyle = '#334155';
+        this.ctx.beginPath();
+        this.ctx.arc(cx + 90, cy - 50, 28, Math.PI, 0, false);
+        this.ctx.lineTo(cx + 118, cy);
+        this.ctx.lineTo(cx + 62, cy);
+        this.ctx.fill();
+
+        this.ctx.restore();
+      }
+
+      renderPrincess() {
+        const p = this.princess;
+        this.ctx.save();
+        this.ctx.translate(p.x, p.y);
+
+        this.ctx.fillStyle = '#f472b6';
+        this.ctx.beginPath();
+        this.ctx.moveTo(10, 30);
+        this.ctx.lineTo(44, 30);
+        this.ctx.lineTo(54, 74);
+        this.ctx.lineTo(0, 74);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#fed7aa';
+        this.ctx.beginPath();
+        this.ctx.arc(27, 18, 16, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#fed7aa';
+        this.ctx.beginPath();
+        this.ctx.moveTo(14, 8);
+        this.ctx.lineTo(19, 0);
+        this.ctx.lineTo(24, 6);
+        this.ctx.fill();
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(30, 6);
+        this.ctx.lineTo(35, 0);
+        this.ctx.lineTo(40, 8);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#facc15';
+        this.ctx.beginPath();
+        this.ctx.moveTo(18, 4);
+        this.ctx.lineTo(22, -4);
+        this.ctx.lineTo(27, 2);
+        this.ctx.lineTo(32, -4);
+        this.ctx.lineTo(36, 4);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#be185d';
+        this.ctx.beginPath();
+        this.ctx.arc(22, 18, 2.5, 0, Math.PI * 2);
+        this.ctx.arc(32, 18, 2.5, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.restore();
+      }
+
+      // MARIO CAT 3D VOLUMETRIC RENDERING
+      renderCat() {
+        const c = this.cat;
+        const costume = COSTUMES.find(cos => cos.id === this.currentCostumeId) || COSTUMES[0];
+
+        // Dinamik 3D Zemin Gölgesi
+        const distFromGround = Math.max(0, this.groundY - (c.y + c.h));
+        const shadowScale = Math.max(0.35, 1 - distFromGround / 180);
+        const shadowAlpha = Math.max(0.12, 0.42 * (1 - distFromGround / 220));
+
+        this.ctx.save();
+        this.ctx.translate(c.x + c.w / 2, this.groundY - 2);
+        this.ctx.scale(shadowScale, shadowScale * 0.4);
+        const shadowGrad = this.ctx.createRadialGradient(0, 0, 4, 0, 0, 24);
+        shadowGrad.addColorStop(0, `rgba(0, 0, 0, ${shadowAlpha})`);
+        shadowGrad.addColorStop(0.6, `rgba(0, 0, 0, ${shadowAlpha * 0.6})`);
+        shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        this.ctx.fillStyle = shadowGrad;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+
+        this.ctx.save();
+
+        if (c.invulnerableTimer > 0 && Math.floor(c.invulnerableTimer * 20) % 2 === 0) {
+          this.ctx.globalAlpha = 0.35;
+        }
+
+        let squashX = 1;
+        let squashY = 1;
+        if (c.isJumping) {
+          squashX = 0.94;
+          squashY = 1.06;
+        } else if (c.shakeTimer > 0) {
+          squashX = 1.08;
+          squashY = 0.92;
+        }
+
+        this.ctx.translate(c.x + c.w / 2, c.y + c.h / 2);
+        this.ctx.scale(c.facing === 'left' ? -squashX : squashX, squashY);
+
+        if (c.shakeTimer > 0) {
+          this.ctx.rotate(Math.sin(c.shakeTimer * 20) * 0.15);
+        } else if (c.happyTimer > 0) {
+          this.ctx.translate(0, -Math.sin(c.happyTimer * 15) * 8);
+        } else if (this.isAdvancing || this.isCastleRun) {
+          this.ctx.rotate(0.08);
+        }
+
+        // Pelerin
+        if (costume.capeColor) {
+          this.ctx.save();
+          const wave = Math.sin(c.walkCycle * 0.9 || performance.now() / 250) * 8;
+          this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+          this.ctx.beginPath();
+          this.ctx.moveTo(-8, -4);
+          this.ctx.quadraticCurveTo(-34 + wave, 14, -26 + wave, 28);
+          this.ctx.lineTo(-4, 18);
+          this.ctx.closePath();
+          this.ctx.fill();
+
+          const capeGrad = this.ctx.createLinearGradient(-10, -4, -28 + wave, 28);
+          capeGrad.addColorStop(0, costume.capeColor);
+          capeGrad.addColorStop(1, '#1e1b4b');
+          this.ctx.fillStyle = capeGrad;
+          this.ctx.beginPath();
+          this.ctx.moveTo(-10, -4);
+          this.ctx.quadraticCurveTo(-30 + wave, 12, -22 + wave, 26);
+          this.ctx.lineTo(-4, 18);
+          this.ctx.closePath();
+          this.ctx.fill();
+          this.ctx.restore();
+        }
+
+        // 3D Kuyruk
+        this.ctx.save();
+        const isTanooki = costume.id === 'tanooki';
+        const tailWag = c.isJumping ? -18 : Math.sin(c.walkCycle) * (this.isAdvancing || this.isCastleRun ? 16 : 10);
+
+        if (isTanooki) {
+          this.ctx.strokeStyle = '#78350f';
+          this.ctx.lineWidth = 14;
+          this.ctx.lineCap = 'round';
+          this.ctx.beginPath();
+          this.ctx.moveTo(-16, 12);
+          this.ctx.quadraticCurveTo(-34 + tailWag, 4, -26 + tailWag, -10);
+          this.ctx.stroke();
+
+          this.ctx.strokeStyle = '#b45309';
+          this.ctx.lineWidth = 12;
+          this.ctx.beginPath();
+          this.ctx.moveTo(-22, 9);
+          this.ctx.lineTo(-24 + tailWag * 0.5, 4);
+          this.ctx.stroke();
+
+          this.ctx.strokeStyle = '#fef3c7';
+          this.ctx.lineWidth = 10;
+          this.ctx.beginPath();
+          this.ctx.moveTo(-28 + tailWag, -5);
+          this.ctx.lineTo(-26 + tailWag, -10);
+          this.ctx.stroke();
+        } else {
+          this.ctx.lineWidth = 8;
+          this.ctx.lineCap = 'round';
+          const furColor = costume.hatColor === '#eab308' ? '#ca8a04' : '#f59e0b';
+          const tailGrad = this.ctx.createLinearGradient(-16, 12, -26 + tailWag, -10);
+          tailGrad.addColorStop(0, furColor);
+          tailGrad.addColorStop(0.7, '#fbbf24');
+          tailGrad.addColorStop(1, '#ffffff');
+          this.ctx.strokeStyle = tailGrad;
+          this.ctx.beginPath();
+          this.ctx.moveTo(-16, 12);
+          this.ctx.quadraticCurveTo(-32 + tailWag, 4, -26 + tailWag, -10);
+          this.ctx.stroke();
+
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.beginPath();
+          this.ctx.arc(-26 + tailWag, -10, 5, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+        this.ctx.restore();
+
+        // 3D Bacaklar
+        const legSwing = c.isJumping ? 0 : Math.sin(c.walkCycle) * (this.isAdvancing || this.isCastleRun ? 11 : 7);
+        this.draw3DLeg(-14 + legSwing, 16, costume.overallsColor);
+        this.draw3DLeg(4 - legSwing, 16, costume.overallsColor);
+
+        // 3D Gövde ve Tulum
+        const shirtGrad = this.ctx.createLinearGradient(-16, -6, 16, 16);
+        shirtGrad.addColorStop(0, '#ffffff');
+        shirtGrad.addColorStop(0.3, costume.shirtColor);
+        shirtGrad.addColorStop(1, '#0f172a');
+        this.ctx.fillStyle = shirtGrad;
+        this.ctx.beginPath();
+        this.ctx.roundRect(-16, -6, 32, 22, 8);
+        this.ctx.fill();
+
+        const overallsGrad = this.ctx.createLinearGradient(-15, 2, 15, 20);
+        overallsGrad.addColorStop(0, '#60a5fa');
+        overallsGrad.addColorStop(0.5, costume.overallsColor);
+        overallsGrad.addColorStop(1, '#0f172a');
+        this.ctx.fillStyle = overallsGrad;
+        this.ctx.beginPath();
+        this.ctx.roundRect(-15, 3, 30, 17, 6);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = costume.overallsColor;
+        this.ctx.beginPath();
+        this.ctx.roundRect(-13, -5, 6, 12, 2);
+        this.ctx.roundRect(7, -5, 6, 12, 2);
+        this.ctx.fill();
+
+        this.draw3DGoldButton(-10, 7, 3);
+        this.draw3DGoldButton(10, 7, 3);
+
+        if (c.isJumping) {
+          this.draw3DArm(12, -8, 14, -22, costume.shirtColor);
+        } else {
+          const armBob = Math.sin(c.walkCycle) * 4;
+          this.draw3DGlove(14, 6 + armBob, 6);
+          this.draw3DGlove(-14, 6 - armBob, 5.5);
+        }
+
+        // 3D Kafa
+        const furBase = '#f97316';
+        const headGrad = this.ctx.createRadialGradient(-5, -20, 3, 0, -14, 20);
+        headGrad.addColorStop(0, '#fef08a');
+        headGrad.addColorStop(0.4, furBase);
+        headGrad.addColorStop(1, '#9a3412');
+        this.ctx.fillStyle = headGrad;
+        this.ctx.beginPath();
+        this.ctx.arc(0, -14, 18, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = 'rgba(244, 63, 94, 0.28)';
+        this.ctx.beginPath();
+        this.ctx.arc(-8, -10, 4.5, 0, Math.PI * 2);
+        this.ctx.arc(10, -10, 4.5, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        const muzzleGrad = this.ctx.createRadialGradient(2, -10, 2, 3, -9, 10);
+        muzzleGrad.addColorStop(0, '#ffffff');
+        muzzleGrad.addColorStop(0.8, '#f8fafc');
+        muzzleGrad.addColorStop(1, '#cbd5e1');
+        this.ctx.fillStyle = muzzleGrad;
+        this.ctx.beginPath();
+        this.ctx.ellipse(3, -9, 10, 7, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#f43f5e';
+        this.ctx.beginPath();
+        this.ctx.moveTo(3, -11);
+        this.ctx.lineTo(6, -8);
+        this.ctx.lineTo(0, -8);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        this.ctx.strokeStyle = '#334155';
+        this.ctx.lineWidth = 1.4;
+        this.ctx.lineCap = 'round';
+        this.ctx.beginPath();
+        this.ctx.moveTo(8, -8); this.ctx.lineTo(21, -11);
+        this.ctx.moveTo(8, -6); this.ctx.lineTo(22, -6);
+        this.ctx.moveTo(-2, -8); this.ctx.lineTo(-13, -11);
+        this.ctx.moveTo(-2, -6); this.ctx.lineTo(-14, -6);
+        this.ctx.stroke();
+
+        if (costume.hasMask) {
+          this.ctx.fillStyle = '#1e1b4b';
+          this.ctx.beginPath();
+          this.ctx.roundRect(-2, -22, 19, 12, 5);
+          this.ctx.fill();
+        } else if (costume.id === 'cyber_mecha') {
+          const visorGrad = this.ctx.createLinearGradient(-4, -22, 16, -10);
+          visorGrad.addColorStop(0, '#06b6d4');
+          visorGrad.addColorStop(0.5, '#22d3ee');
+          visorGrad.addColorStop(1, '#3b82f6');
+          this.ctx.fillStyle = visorGrad;
+          this.ctx.beginPath();
+          this.ctx.roundRect(-3, -22, 20, 10, 4);
+          this.ctx.fill();
+          this.ctx.strokeStyle = '#ffffff';
+          this.ctx.lineWidth = 1.5;
+          this.ctx.stroke();
+        }
+
+        if (costume.id !== 'cyber_mecha') {
+          this.draw3DEye(5, -17, 4, 6);
+        }
+
+        this.draw3DCatEar(-16, -26, -9, -40, -2, -28, furBase);
+        this.draw3DCatEar(2, -28, 9, -40, 16, -26, furBase);
+
+        // 3D Şapka
+        const capGrad = this.ctx.createRadialGradient(-3, -30, 2, 0, -26, 18);
+        capGrad.addColorStop(0, '#ffffff');
+        capGrad.addColorStop(0.4, costume.hatColor);
+        capGrad.addColorStop(1, '#7f1d1d');
+        this.ctx.fillStyle = capGrad;
+        this.ctx.beginPath();
+        this.ctx.ellipse(0, -26, 17, 11, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        this.ctx.beginPath();
+        this.ctx.ellipse(8, -19, 13, 5, 0.15, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        const brimGrad = this.ctx.createLinearGradient(0, -24, 16, -18);
+        brimGrad.addColorStop(0, '#f87171');
+        brimGrad.addColorStop(0.7, costume.hatColor);
+        brimGrad.addColorStop(1, '#991b1b');
+        this.ctx.fillStyle = brimGrad;
+        this.ctx.beginPath();
+        this.ctx.ellipse(8, -22, 13, 5.5, 0.18, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        if (costume.hasCrown) {
+          this.draw3DGoldCrown(0, -32);
+        } else if (costume.id === 'unicorn') {
+          this.draw3DUnicornHorn(4, -30);
+        } else if (costume.id === 'diamond_knight') {
+          this.draw3DKnightArmor(0, -26);
+        } else {
+          this.draw3DEmbossedBadge(1, -26, costume.badge, costume.hatColor);
+        }
+
+        this.ctx.restore();
+      }
+
+      draw3DLeg(x, y, overallsColor) {
+        this.ctx.save();
+        const legGrad = this.ctx.createLinearGradient(x, y, x + 12, y);
+        legGrad.addColorStop(0, '#60a5fa');
+        legGrad.addColorStop(0.5, overallsColor);
+        legGrad.addColorStop(1, '#0f172a');
+        this.ctx.fillStyle = legGrad;
+        this.ctx.beginPath();
+        this.ctx.roundRect(x, y, 12, 12, 3);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#1e1b4b';
+        this.ctx.beginPath();
+        this.ctx.roundRect(x - 2, y + 10, 16, 5, 2);
+        this.ctx.fill();
+
+        const bootGrad = this.ctx.createRadialGradient(x + 5, y + 11, 2, x + 6, y + 12, 10);
+        bootGrad.addColorStop(0, '#a16207');
+        bootGrad.addColorStop(0.5, '#78350f');
+        bootGrad.addColorStop(1, '#451a03');
+        this.ctx.fillStyle = bootGrad;
+        this.ctx.beginPath();
+        this.ctx.roundRect(x - 2, y + 4, 16, 8, 4);
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      draw3DGoldButton(cx, cy, r) {
+        this.ctx.save();
+        const btnGrad = this.ctx.createRadialGradient(cx - 1, cy - 1, 0.5, cx, cy, r);
+        btnGrad.addColorStop(0, '#fef08a');
+        btnGrad.addColorStop(0.4, '#facc15');
+        btnGrad.addColorStop(0.9, '#ca8a04');
+        btnGrad.addColorStop(1, '#713f12');
+        this.ctx.fillStyle = btnGrad;
+        this.ctx.beginPath();
+        this.ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.beginPath();
+        this.ctx.arc(cx - 1, cy - 1, r * 0.35, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      draw3DArm(x1, y1, x2, y2, sleeveColor) {
+        this.ctx.save();
+        this.ctx.strokeStyle = sleeveColor;
+        this.ctx.lineWidth = 9;
+        this.ctx.lineCap = 'round';
+        this.ctx.beginPath();
+        this.ctx.moveTo(x1, y1);
+        this.ctx.lineTo(x2, y2);
+        this.ctx.stroke();
+
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.beginPath();
+        this.ctx.arc(x2, y2, 8, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.strokeStyle = '#cbd5e1';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.stroke();
+        this.ctx.restore();
+      }
+
+      draw3DGlove(cx, cy, r) {
+        this.ctx.save();
+        const gloveGrad = this.ctx.createRadialGradient(cx - 2, cy - 2, 1, cx, cy, r);
+        gloveGrad.addColorStop(0, '#ffffff');
+        gloveGrad.addColorStop(0.7, '#f1f5f9');
+        gloveGrad.addColorStop(1, '#cbd5e1');
+        this.ctx.fillStyle = gloveGrad;
+        this.ctx.beginPath();
+        this.ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.strokeStyle = '#94a3b8';
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+        this.ctx.restore();
+      }
+
+      draw3DEye(cx, cy, rw, rh) {
+        this.ctx.save();
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.beginPath();
+        this.ctx.ellipse(cx, cy, rw, rh, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.strokeStyle = '#334155';
+        this.ctx.lineWidth = 1.2;
+        this.ctx.stroke();
+
+        const irisGrad = this.ctx.createRadialGradient(cx, cy - 0.5, 0.5, cx, cy, 3);
+        irisGrad.addColorStop(0, '#0284c7');
+        irisGrad.addColorStop(0.7, '#0369a1');
+        irisGrad.addColorStop(1, '#0f172a');
+        this.ctx.fillStyle = irisGrad;
+        this.ctx.beginPath();
+        this.ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#0f172a';
+        this.ctx.beginPath();
+        this.ctx.arc(cx, cy, 1.8, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.beginPath();
+        this.ctx.arc(cx - 1, cy - 1.5, 1.2, 0, Math.PI * 2);
+        this.ctx.arc(cx + 1, cy + 1, 0.6, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      draw3DCatEar(x1, y1, x2, y2, x3, y3, furBase) {
+        this.ctx.save();
+        this.ctx.fillStyle = furBase;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x1, y1);
+        this.ctx.lineTo(x2, y2);
+        this.ctx.lineTo(x3, y3);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#fbcfe8';
+        this.ctx.beginPath();
+        const mx = (x1 + x3) / 2;
+        const my = (y1 + y3) / 2;
+        this.ctx.moveTo(x1 * 0.7 + mx * 0.3, y1 * 0.7 + my * 0.3);
+        this.ctx.lineTo(x2 * 0.75 + mx * 0.25, y2 * 0.75 + my * 0.25);
+        this.ctx.lineTo(x3 * 0.7 + mx * 0.3, y3 * 0.7 + my * 0.3);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      draw3DGoldCrown(cx, cy) {
+        this.ctx.save();
+        const crownGrad = this.ctx.createLinearGradient(cx - 10, cy, cx + 10, cy);
+        crownGrad.addColorStop(0, '#fef08a');
+        crownGrad.addColorStop(0.5, '#eab308');
+        crownGrad.addColorStop(1, '#a16207');
+        this.ctx.fillStyle = crownGrad;
+        this.ctx.beginPath();
+        this.ctx.moveTo(cx - 9, cy);
+        this.ctx.lineTo(cx - 12, cy - 11);
+        this.ctx.lineTo(cx - 5, cy - 5);
+        this.ctx.lineTo(cx, cy - 13);
+        this.ctx.lineTo(cx + 5, cy - 5);
+        this.ctx.lineTo(cx + 12, cy - 11);
+        this.ctx.lineTo(cx + 9, cy);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        this.ctx.fillStyle = '#ef4444';
+        this.ctx.beginPath();
+        this.ctx.arc(cx, cy - 6, 2, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      draw3DUnicornHorn(cx, cy) {
+        this.ctx.save();
+        const hornGrad = this.ctx.createLinearGradient(cx - 4, cy, cx + 4, cy - 16);
+        hornGrad.addColorStop(0, '#fef08a');
+        hornGrad.addColorStop(0.5, '#f472b6');
+        hornGrad.addColorStop(1, '#38bdf8');
+        this.ctx.fillStyle = hornGrad;
+        this.ctx.beginPath();
+        this.ctx.moveTo(cx - 4, cy);
+        this.ctx.lineTo(cx + 2, cy - 16);
+        this.ctx.lineTo(cx + 5, cy);
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.restore();
+      }
+
+      draw3DKnightArmor(cx, cy) {
+        this.ctx.save();
+        const helmetGrad = this.ctx.createLinearGradient(cx - 12, cy, cx + 12, cy);
+        helmetGrad.addColorStop(0, '#38bdf8');
+        helmetGrad.addColorStop(0.5, '#0284c7');
+        helmetGrad.addColorStop(1, '#0c4a6e');
+        this.ctx.fillStyle = helmetGrad;
+        this.ctx.beginPath();
+        this.ctx.roundRect(cx - 8, cy - 6, 18, 8, 3);
+        this.ctx.fill();
+        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+        this.ctx.restore();
+      }
+
+      draw3DEmbossedBadge(cx, cy, letter, hatColor) {
+        this.ctx.save();
+        const badgeGrad = this.ctx.createRadialGradient(cx - 1, cy - 1, 1, cx, cy, 7);
+        badgeGrad.addColorStop(0, '#ffffff');
+        badgeGrad.addColorStop(0.8, '#f8fafc');
+        badgeGrad.addColorStop(1, '#cbd5e1');
+        this.ctx.fillStyle = badgeGrad;
+        this.ctx.beginPath();
+        this.ctx.arc(cx, cy, 6.5, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.fillStyle = hatColor === '#ffffff' ? '#dc2626' : hatColor;
+        this.ctx.font = "900 9px 'Fredoka', sans-serif";
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(letter || 'M', cx, cy + 0.5);
+        this.ctx.restore();
+      }
+
+      renderThankYouBubble() {
+        const bx = 740;
+        const by = 260;
+        this.ctx.save();
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.strokeStyle = '#f43f5e';
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.roundRect(bx - 180, by - 50, 360, 68, 16);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(bx + 10, by + 18);
+        this.ctx.lineTo(bx + 30, by + 40);
+        this.ctx.lineTo(bx + 40, by + 18);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.fillStyle = '#be185d';
+        this.ctx.font = "bold 15px 'Fredoka', sans-serif";
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('💖 "Beni kurtardın Mario Kedi!', bx, by - 22);
+        this.ctx.fillStyle = '#1e293b';
+        this.ctx.fillText('Matematikte bir harikasın, teşekkür ederim!"', bx, by + 2);
+        this.ctx.restore();
+      }
+
+      // 7. KONTROLLER VE ETKİLEŞİMLER
+      initControls() {
+        window.addEventListener('keydown', (e) => {
+          sound.init();
+          if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.keys.left = true;
+          if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.keys.right = true;
+          if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+            if (this.cat.isGrounded) {
+              this.cat.vy = this.cat.jumpPower;
+              this.cat.isGrounded = false;
+              this.cat.isJumping = true;
+              sound.jump();
+              if (navigator.vibrate) navigator.vibrate(30);
+            }
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.keys.left = false;
+          if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.keys.right = false;
+        });
+
+        // Mobil Dokunmatik D-Pad Butonları
+        const bindTouch = (elId, onDown, onUp) => {
+          const el = document.getElementById(elId);
+          if (!el) return;
+          el.addEventListener('touchstart', (e) => { e.preventDefault(); sound.init(); onDown(); });
+          el.addEventListener('touchend', (e) => { e.preventDefault(); onUp(); });
+          el.addEventListener('mousedown', (e) => { e.preventDefault(); sound.init(); onDown(); });
+          el.addEventListener('mouseup', (e) => { e.preventDefault(); onUp(); });
+          el.addEventListener('mouseleave', () => onUp());
+        };
+
+        bindTouch('btn-left', () => this.keys.left = true, () => this.keys.left = false);
+        bindTouch('btn-right', () => this.keys.right = true, () => this.keys.right = false);
+        bindTouch('btn-jump', () => {
+          if (this.cat.isGrounded) {
+            this.cat.vy = this.cat.jumpPower;
+            this.cat.isGrounded = false;
+            this.cat.isJumping = true;
+            sound.jump();
+            if (navigator.vibrate) navigator.vibrate(35);
+          }
+        }, () => {});
+
+        // Modal Butonları
+        document.getElementById('btn-next-level').addEventListener('click', () => {
+          this.nextLevel();
+        });
+
+        document.getElementById('btn-retry-level').addEventListener('click', () => {
+          this.retryLevelAfterGameOver();
+        });
+
+        document.getElementById('btn-play-again').addEventListener('click', () => {
+          this.restartGame();
+        });
+
+        document.getElementById('btn-modal-shop').addEventListener('click', () => {
+          document.getElementById('level-modal').style.display = 'none';
+          this.openShop();
+        });
+
+        document.getElementById('btn-sound-toggle').addEventListener('click', () => {
+          sound.enabled = !sound.enabled;
+          document.getElementById('btn-sound-toggle').innerText = sound.enabled ? '🔊 Ses' : '🔇 Sessiz';
+        });
+
+        document.getElementById('btn-fullscreen-toggle').addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+        });
+      }
+
+      // 8. KOSTÜM MAĞAZASI ARAYÜZÜ
+      initShopUI() {
+        document.getElementById('btn-open-shop').addEventListener('click', () => this.openShop());
+        document.getElementById('btn-gold-counter').addEventListener('click', () => this.openShop());
+        document.getElementById('btn-open-wardrobe').addEventListener('click', () => this.openShop());
+        document.getElementById('btn-close-shop').addEventListener('click', () => this.closeShop());
+        document.getElementById('btn-close-shop-bottom').addEventListener('click', () => this.closeShop());
+      }
+
+      openShop() {
+        this.renderShopCostumes();
+        document.getElementById('shop-modal').style.display = 'flex';
+      }
+
+      closeShop() {
+        document.getElementById('shop-modal').style.display = 'none';
+      }
+
+      renderShopCostumes() {
+        document.getElementById('shop-coins-display').innerText = `🪙 ${this.coins}`;
+        document.getElementById('shop-score-display').innerText = `⭐ ${this.score}`;
+
+        const listEl = document.getElementById('shop-costumes-list');
+        listEl.innerHTML = '';
+
+        COSTUMES.forEach(cos => {
+          const isUnlocked = this.unlockedCostumeIds.includes(cos.id);
+          const isEquipped = this.currentCostumeId === cos.id;
+          const canAfford = this.coins >= cos.cost && this.score >= cos.minScore;
+
+          const card = document.createElement('div');
+          card.className = `costume-card ${isEquipped ? 'equipped' : (isUnlocked ? 'unlocked' : '')}`;
+
+          card.innerHTML = `
+            <div>
+              <div class="costume-top">
+                <span class="costume-tag">${cos.tag}</span>
+                <span style="font-size:11px; font-weight:800; color:${isUnlocked ? '#10b981' : '#facc15'}">
+                  ${isUnlocked ? '✓ Açık' : `🪙 ${cos.cost} Altın`}
+                </span>
+              </div>
+              <div class="costume-main">
+                <div class="costume-avatar" style="background:${cos.hatColor}">
+                  ${cos.icon}
+                </div>
+                <div>
+                  <div class="costume-name">${cos.name}</div>
+                  <div class="costume-desc">${cos.desc}</div>
+                </div>
+              </div>
+              ${!isUnlocked && cos.minScore > 0 && this.score < cos.minScore ? `
+                <div style="font-size:10px; color:#f87171; font-weight:700; margin-bottom:6px;">
+                  ⚠️ En az ${cos.minScore} puan gerekli!
+                </div>
+              ` : ''}
+            </div>
+          `;
+
+          const btn = document.createElement('button');
+          if (isEquipped) {
+            btn.className = 'costume-btn btn-equipped';
+            btn.innerText = '✓ GİYİLDİ';
+            btn.disabled = true;
+          } else if (isUnlocked) {
+            btn.className = 'costume-btn btn-wear';
+            btn.innerText = 'BU KOSTÜMÜ GİY 🐱';
+            btn.addEventListener('click', () => {
+              this.currentCostumeId = cos.id;
+              document.getElementById('btn-open-wardrobe').innerText = cos.icon;
+              document.getElementById('btn-open-wardrobe').style.background = cos.hatColor;
+              sound.correct();
+              this.renderShopCostumes();
+            });
+          } else {
+            btn.className = 'costume-btn btn-buy';
+            btn.innerText = canAfford ? `SATIN AL & GİY (🪙 ${cos.cost})` : (this.coins < cos.cost ? `${cos.cost - this.coins} Altın Gerekli` : 'Puan Yetersiz');
+            btn.disabled = !canAfford;
+            btn.addEventListener('click', () => {
+              if (canAfford) {
+                this.coins -= cos.cost;
+                this.unlockedCostumeIds.push(cos.id);
+                this.currentCostumeId = cos.id;
+                document.getElementById('btn-open-wardrobe').innerText = cos.icon;
+                document.getElementById('btn-open-wardrobe').style.background = cos.hatColor;
+                sound.correct();
+                this.updateHUD();
+                this.renderShopCostumes();
+              }
+            });
+          }
+
+          card.appendChild(btn);
+          listEl.appendChild(card);
+        });
+      }
+    }
+
+    // Oyunu Başlat
+    window.addEventListener('DOMContentLoaded', () => {
+      new GameApp();
+    });
+  </script>
+</body>
+</html>
